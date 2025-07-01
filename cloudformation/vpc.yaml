@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'VPC with public subnet, internet gateway, and routes'
+
+Resources:
+  Placeholder:
+    Type: AWS::IoT::Thing
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      ThingName: !Sub ${AWS::StackName}-Placeholder
+
+Outputs:
+  VpcId:
+    Description: VPC ID
+    Value: vpc-061f0e384225289bd
+    Export:
+      Name: !Sub ${AWS::StackName}-VpcId
+
+  PublicSubnetId:
+    Description: Public Subnet ID
+    Value: subnet-02683626aa4af010f
+    Export:
+      Name: !Sub ${AWS::StackName}-PublicSubnetId

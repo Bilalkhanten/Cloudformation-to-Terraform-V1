@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'EC2 instance with security group in VPC'
+
+Parameters:
+  VpcStackName:
+    Type: String
+    Description: Name of the VPC stack to import values from
+
+  EC2Ami:
+    Type: String
+    Description: AMI ID to use for the EC2 instance
+    Default: ami-083b72f9e766cbb7c  # eu-central-1 Amazon Linux 2023 AMI
+
+Resources:
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      GroupDescription: Security group for EC2 instance
+      VpcId: !ImportValue 
+        Fn::Sub: ${VpcStackName}-VpcId
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: EC2SecurityGroup
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      ImageId: !Ref EC2Ami
+      InstanceType: t4g.nano
+      SubnetId: !ImportValue 
+        Fn::Sub: ${VpcStackName}-PublicSubnetId
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      Tags:
+        - Key: Name
+          Value: MyEC2Instance
+
+Outputs:
+  InstanceId:
+    Description: EC2 Instance ID
+    Value: !Ref EC2Instance
+    Export:
+      Name: !Sub ${AWS::StackName}-InstanceId
+
+  SecurityGroupId:
+    Description: Security Group ID
+    Value: !Ref SecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-SecurityGroupId
